@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniel & Laura | Nuestro Álbum</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <h2>♡ Daniel & Laura</h2>
+
+        <nav>
+            <a href="#inicio">Inicio</a>
+            <a href="#galeria">Galería</a>
+            <a href="#subir">Subir Fotos</a>
+            <a href="#descargar">Descargar</a>
+        </nav>
+    </header>
+
+    <main id="inicio">
+
+        <h1>Daniel & Laura</h1>
+
+        <h2>Un día, mil recuerdos ♡</h2>
+
+        <h3>21 de noviembre de 2026</h3>
+
+        <p>
+            Gracias por ser parte de este momento
+            tan especial en nuestras vidas.
+        </p>
+
+        <p>
+            Queremos guardar cada sonrisa,
+            cada abrazo y cada instante
+            que compartamos con ustedes.
+        </p>
+
+        <button onclick="location.href='#galeria'">
+            📷 Ver Galería
+        </button>
+
+    </main>
+
+    <section id="galeria">
+
+        <h2>Nuestros recuerdos ♡</h2>
+
+        <p>Cada fotografía guarda un momento especial.</p>
+
+        <div class="galeria-fotos">
+
+            {% if fotografias %}
+
+                {% for foto in fotografias %}
+
+                    <div class="foto">
+                        <img
+                            src="{{ url_for('mostrar_foto', nombre=foto) }}"
+                            alt="Recuerdo de Daniel y Laura"
+                            onclick="abrirFoto(this.src)"
+                        >
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>Aún no hay fotografías. ¡Sé el primero en compartir una!</p>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- VISOR DE FOTOGRAFÍAS -->
+
+ 
+<div id="visor-foto" onclick="cerrarFoto()">
+
+    <span class="cerrar" onclick="cerrarFoto()">&times;</span>
+
+    <button class="flecha anterior"
+        onclick="event.stopPropagation(); cambiarFoto(-1)">
+        &#10094;
+    </button>
+
+    <img id="imagen-grande"
+         src=""
+         alt="Fotografía ampliada"
+         onclick="event.stopPropagation()">
+
+    <button class="flecha siguiente"
+        onclick="event.stopPropagation(); cambiarFoto(1)">
+        &#10095;
+    </button>
+
+</div>
+
+
+    <section id="subir">
+
+        <h2>Comparte tus fotografías ♡</h2>
+
+        <p>
+            Ayúdanos a conservar cada momento
+            de este día tan especial.
+        </p>
+
+        <form action="/subir" method="POST" enctype="multipart/form-data">
+
+            <input
+                type="file"
+                name="fotografias"
+                accept="image/png, image/jpeg, image/webp"
+                multiple
+                required
+            >
+
+            <button type="submit">
+                📸 Subir mis fotografías
+            </button>
+
+        </form>
+
+    </section>
+
+    <section id="descargar">
+
+        <h2>Descarga nuestros recuerdos</h2>
+
+        <p>Muy pronto podrás descargar el álbum completo.</p>
+
+    </section>
+
+    <script>
+
+
+let indiceActual = 0;
+
+function abrirFoto(ruta) {
+
+    const fotos = document.querySelectorAll(
+        ".galeria-fotos .foto img"
+    );
+
+    indiceActual = Array.from(fotos).findIndex(
+        foto => foto.src === ruta
+    );
+
+    mostrarFoto();
+
+}
+
+function mostrarFoto() {
+
+    const fotos = document.querySelectorAll(
+        ".galeria-fotos .foto img"
+    );
+
+    if (fotos.length === 0) return;
+
+    document.getElementById("imagen-grande").src =
+        fotos[indiceActual].src;
+
+    document.getElementById("visor-foto").style.display = "flex";
+
+}
+
+function cambiarFoto(direccion) {
+
+    const fotos = document.querySelectorAll(
+        ".galeria-fotos .foto img"
+    );
+
+    indiceActual =
+        (indiceActual + direccion + fotos.length) % fotos.length;
+
+    mostrarFoto();
+
+}
+
+function cerrarFoto() {
+
+    document.getElementById("visor-foto").style.display = "none";
+
+    document.getElementById("imagen-grande").src = "";
+
+}
+
+
+    </script>
+
+</body>
+</html>
