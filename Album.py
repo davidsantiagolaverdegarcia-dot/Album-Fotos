@@ -1,3 +1,4 @@
+
 from flask import (
     Flask, render_template, request, redirect,
     url_for, flash, send_file
@@ -17,7 +18,11 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-app.secret_key = os.getenv("SECRET_KEY", "clave-temporal-desarrollo")
+app.secret_key = os.getenv(
+    "SECRET_KEY",
+    "clave-temporal-desarrollo"
+)
+
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -127,11 +132,19 @@ def mostrar_foto(nombre):
         if secure_filename(nombre) != nombre:
             return "Nombre inválido.", 400
 
-        url = supabase.storage.from_(BUCKET).get_public_url(nombre)
-        return redirect(url)
+        contenido = supabase.storage.from_(BUCKET).download(nombre)
+
+        tipo = mimetypes.guess_type(nombre)[0] or "image/jpeg"
+
+        return send_file(
+            BytesIO(contenido),
+            mimetype=tipo,
+            as_attachment=False,
+            download_name=nombre
+        )
 
     except Exception as e:
-        print("Error al mostrar fotografía:", repr(e))
+        print("ERROR MOSTRANDO FOTO:", repr(e))
         return "No se pudo mostrar la fotografía.", 500
 
 
@@ -194,7 +207,11 @@ def descargar_album():
                     zip_album.writestr(nombre, contenido)
 
                 except Exception as e:
-                    print("Error al incluir fotografía:", nombre, repr(e))
+                    print(
+                        "Error al incluir fotografía:",
+                        nombre,
+                        repr(e)
+                    )
 
         memoria.seek(0)
 
@@ -217,4 +234,3 @@ if __name__ == "__main__":
         port=5000,
         debug=False
     )
-
